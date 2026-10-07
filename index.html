@@ -32,6 +32,7 @@
   --f1:#a3c8ea; --f2:#8bb7de; --f3:#73a7d4; --f4:#9eabb8;
   --mark:#e2b35e; --mark-soft:#30271a; --ok:#73c595; --warn:#ec9a80; --warn-soft:#3a2219;
   color-scheme:dark}
+[hidden]{display:none!important}
 *{box-sizing:border-box}
 html{color-scheme:light}
 .linkbox{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:10px}
@@ -167,7 +168,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 <script>
 (function(){
 /* ======== CONFIGURAÇÃO: cole aqui a URL do App da Web do Apps Script (termina em /exec) ======== */
-const API_URL="COLE_AQUI_A_URL_DO_APPS_SCRIPT";
+const API_URL="https://script.google.com/macros/s/AKfycbziCsAyCJytPOHp1E4FCLIoC_-NEOMuwcQAT6S1cQvEbVM9HbhGzX5EW7DIpN1jaUa7Ww/exec";
 /* ============================================================================================== */
 
 const OBJ=["Renda complementar","Construir um ativo de valor","Propósito com a classe médica","Aprendizado e rede"];
@@ -294,6 +295,7 @@ function saveCons(k,v){clearTimeout(consTimers[k]);consTimers[k]=setTimeout(asyn
 function showTab(t){document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t?"true":"false"));$("#p-responder").hidden=t!=="responder";$("#p-admin").hidden=t!=="admin"}
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
 
+window.addEventListener("hashchange",()=>location.reload());
 /* ---------- início ---------- */
 buildForm();
 (async()=>{
