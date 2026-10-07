@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Canvas de Sócios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a single working column (max 960px) — header with method steps, then stacked fundamento sections; organizer view in a second tab. */
+:root{
+  --paper:#f4f5f2; --surface:#ffffff; --ink:#17202b; --muted:#5a6573; --line:#d8dcd5; --line-strong:#b9c0b8;
+  --accent:#1f4e79; --accent-ink:#ffffff; --accent-soft:#e3ebf3;
+  --f1:#183a5a; --f2:#245a84; --f3:#2f76a8; --f4:#6b7887;
+  --mark:#9a6414; --mark-soft:#f6ecda; --ok:#2c7149; --warn:#9a3b22; --warn-soft:#f7e4dd;
+  --display:"Newsreader",Georgia,"Times New Roman",serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#10161c; --surface:#17202a; --ink:#e6eaee; --muted:#9ba7b3; --line:#2a3541; --line-strong:#3c4a58;
+  --accent:#8fb9e0; --accent-ink:#0f1a24; --accent-soft:#1b2c3c;
+  --f1:#a3c8ea; --f2:#8bb7de; --f3:#73a7d4; --f4:#9eabb8;
+  --mark:#e2b35e; --mark-soft:#30271a; --ok:#73c595; --warn:#ec9a80; --warn-soft:#3a2219;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#10161c; --surface:#17202a; --ink:#e6eaee; --muted:#9ba7b3; --line:#2a3541; --line-strong:#3c4a58;
+  --accent:#8fb9e0; --accent-ink:#0f1a24; --accent-soft:#1b2c3c;
+  --f1:#a3c8ea; --f2:#8bb7de; --f3:#73a7d4; --f4:#9eabb8;
+  --mark:#e2b35e; --mark-soft:#30271a; --ok:#73c595; --warn:#ec9a80; --warn-soft:#3a2219;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html{color-scheme:light}
+.linkbox{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+.linkrow{display:flex;gap:6px;flex-wrap:wrap}
+.linkrow input{flex:1 1 220px;min-width:0;font-family:var(--mono);font-size:13px}
+input[type=password]{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--paper);border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px}
+
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,5vw,40px)}
+h2{font-size:24px}
+h3{font-size:19px}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--muted);max-width:65ch}
+.ref{font-size:13.5px;color:var(--muted)}
+.ref cite{font-style:italic;color:var(--ink)}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);border-radius:8px;padding:7px 12px;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.banner{border:1px solid var(--line);background:var(--warn-soft);color:var(--warn);border-radius:var(--r);padding:10px 14px;font-size:14px}
+
+header{display:flex;flex-direction:column;gap:12px}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;list-style:none;margin:0;padding:0}
+@media (max-width:640px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.step{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.step .n{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+.step .t{font-weight:600;font-size:14px}
+.step .d{font-size:12.5px;color:var(--muted)}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap;position:sticky;top:env(safe-area-inset-top,0px);background:var(--paper);z-index:5;padding-top:6px}
+.tab{border:none;background:none;color:var(--muted);padding:10px 14px;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.panel{display:flex;flex-direction:column;gap:22px}
+
+.whoami{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.savebar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+
+.fund{display:flex;flex-direction:column;gap:14px}
+.fund-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding-bottom:8px;border-bottom:2px solid var(--fc)}
+.fund-head .num{font-family:var(--mono);font-size:13px;color:var(--fc)}
+.fund-head .sub{color:var(--muted);font-size:14px}
+.fund[data-f="1"]{--fc:var(--f1)} .fund[data-f="2"]{--fc:var(--f2)} .fund[data-f="3"]{--fc:var(--f3)} .fund[data-f="4"]{--fc:var(--f4)}
+.cam{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.cam h3{font-size:18px}
+.qs{margin:0;padding-left:18px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:2px}
+label{font-size:13.5px;font-weight:500}
+input[type=text],input[type=number],textarea,select{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--paper);border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px}
+textarea{min-height:96px;resize:vertical}
+input[type=number]{font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.prio{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 14px}
+.prio .row{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.prio .row input{width:72px;flex:none}
+.range{display:flex;align-items:center;gap:10px}
+.range input{flex:1;accent-color:var(--accent)}
+.range output{font-family:var(--mono);min-width:3ch;text-align:right}
+.hint{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px;background:var(--paper)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mark);flex:none}
+.chip.done .dot{background:var(--ok)}
+.parked{border:1px dashed var(--line-strong);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px}
+.parked ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;white-space:nowrap}
+th{font-weight:600;font-size:12.5px;color:var(--muted);background:var(--paper)}
+tbody tr:last-child td{border-bottom:none}
+tfoot td{font-weight:600;border-top:1px solid var(--line-strong);border-bottom:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.card{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--paper);display:flex;flex-direction:column;gap:6px;min-width:0}
+.card .who{font-weight:600;font-size:13.5px;display:flex;justify-content:space-between;gap:8px}
+.card .txt{font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.card .empty{font-size:13.5px;color:var(--muted);font-style:italic}
+.tag{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.consenso{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.consenso label{color:var(--mark)}
+.consenso textarea{background:var(--mark-soft);min-height:70px}
+.minirank{margin:0;padding-left:18px;font-size:13.5px}
+footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:12px}
+@media (prefers-reduced-motion:no-preference){.tab,.btn{transition:border-color .15s,background .15s,color .15s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Consultoria para clínicas high-ticket · alinhamento entre sócios</span>
+    <h1>Canvas de Sócios</h1>
+    <p class="ref">Baseado no livro <cite>Academia de Sócios</cite>, de Anderson Godz.</p>
+    <p class="lede">Responda sozinho e com franqueza. Suas respostas ficam visíveis só para você e para o organizador, que vai reuni-las para a conversa em grupo. Tudo é salvo automaticamente e você pode voltar quando quiser.</p>
+    <ol class="steps" aria-label="Etapas do método">
+      <li class="step"><span class="n">Passo 1</span><span class="t">Pergunte a si mesmo</span><span class="d">Cada um responde sozinho.</span></li>
+      <li class="step"><span class="n">Passo 2</span><span class="t">Interaja com os sócios</span><span class="d">O grupo conversa sobre as respostas.</span></li>
+      <li class="step"><span class="n">Passo 3</span><span class="t">Reflita novamente</span><span class="d">Reveja sua posição e os sinais de desalinhamento.</span></li>
+      <li class="step"><span class="n">Passo 4</span><span class="t">Busque o consenso</span><span class="d">Registrem o que foi combinado.</span></li>
+    </ol>
+  </header>
+  <div id="banner" class="banner" hidden></div>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Seções" hidden>
+    <button class="tab" role="tab" id="tab-responder" aria-controls="p-responder" data-tab="responder">Minhas respostas</button>
+    <button class="tab" role="tab" id="tab-admin" aria-controls="p-admin" data-tab="admin">Visão do organizador</button>
+  </nav>
+
+  <section class="panel" id="p-responder" role="tabpanel" aria-labelledby="tab-responder">
+    <div class="whoami">
+      <div class="field">
+        <label for="f-nome">Adicionar participante (seu nome)</label>
+        <input type="text" id="f-nome" data-k="nome" maxlength="60" placeholder="Como você quer aparecer para o grupo" autocomplete="name">
+      </div>
+      <div class="savebar"><span id="save-status">Conectando…</span>
+        <button class="btn" type="button" id="done-btn" hidden>Marcar como concluído</button></div>
+      <div class="linkbox" id="linkbox" hidden>
+        <label for="meulink">Seu link pessoal para continuar depois, em qualquer aparelho</label>
+        <div class="linkrow"><input type="text" id="meulink" readonly><button class="btn" type="button" id="copy-btn">Copiar</button></div>
+        <span class="hint">Guarde este link e não o compartilhe: quem tiver este link vê e edita as suas respostas.</span>
+      </div>
+    </div>
+    <div id="form-host"></div>
+  </section>
+
+  <section class="panel" id="p-admin" role="tabpanel" aria-labelledby="tab-admin" hidden></section>
+
+  <footer>As respostas ficam guardadas numa planilha privada do organizador. Cada participante acessa as próprias respostas pelo seu link pessoal.</footer>
+</div>
+
+<script>
+(function(){
+/* ======== CONFIGURAÇÃO: cole aqui a URL do App da Web do Apps Script (termina em /exec) ======== */
+const API_URL="COLE_AQUI_A_URL_DO_APPS_SCRIPT";
+/* ============================================================================================== */
+
+const OBJ=["Renda complementar","Construir um ativo de valor","Propósito com a classe médica","Aprendizado e rede"];
+const PRIO=[["negocio","Este negócio"],["familia","Família"],["carreira","Carreira ou atividade principal"],["saude","Saúde e bem-estar"],["outras","Outras empresas"],["estudos","Estudos"],["amigos","Amigos e hobbies"],["crenca","Crença ou espiritualidade"]];
+const FUNDS=[
+ {f:1,nome:"Expectativas",sub:"O que queremos e o que não queremos",cams:[
+  {k:"velocidade",t:"Velocidade e objetivos",qs:["O que é sucesso para você em 12 meses? E em 36?","Quão rápido quer crescer: poucos clientes muito bem atendidos ou escala?","Venderia a empresa no futuro? Em que condições?"],extra:"obj"},
+  {k:"risco",t:"Apetite a riscos e mudanças",qs:["Quanto aceita perder em dinheiro e em tempo se não der certo?","Quais riscos de reputação aceita (SBCP, colegas, pacientes) e quais não?","Toparia mudar de rumo: outras especialidades, outro público, outro formato?"],extra:"risco"}
+ ]},
+ {f:2,nome:"Princípios",sub:"O que aceitamos e o que não aceitamos",cams:[
+  {k:"prioridades",t:"Valores pessoais e prioridades",qs:["Dê uma nota de importância de 1 a 10 para cada área da sua vida hoje.","Onde este negócio entra nessa ordem nos próximos 12 meses?"],extra:"prio"},
+  {k:"relacoes",t:"Relacionamentos anteriores e familiares",qs:["As clínicas de familiares que servem de piloto pagam pelo serviço? Podem virar caso público?","Familiares e amigos podem ser sócios, fornecedores ou funcionários?","Parceiros que já atendem algum de nós podem atender os clientes da empresa?"]},
+  {k:"etica",t:"Ética e condutas",qs:["Como vamos remunerar os parceiros? O cliente contrata direto ou via empresa?","Brindes, presentes e convites de clientes, parceiros e fornecedores: o que vale?","Como tratamos a confidencialidade dos números e dos clientes das clínicas?"]}
+ ]},
+ {f:3,nome:"Entregas",sub:"O que entregamos e o que não entregamos",cams:[
+  {k:"aportes",t:"Aportes e retiradas",qs:["Quando começar a retirar dinheiro? Reinvestir ou distribuir no início?","Como tratar aportes futuros se faltar caixa?"],extra:"aportes"},
+  {k:"dedicacao",t:"Esforço e dedicação",qs:["Que compromissos competem com este negócio?","Há semanas ou períodos em que você não estará disponível?"],extra:"horas"},
+  {k:"responsabilidades",t:"Responsabilidades e habilidades",qs:["Que experiências e habilidades você traz?","Que frentes quer liderar e quais não quer de jeito nenhum?","Quem deve ser o rosto da empresa? Quem dá a última palavra num impasse?"]}
+ ]},
+ {f:4,nome:"Algum controle",sub:"Como nos organizamos",cams:[
+  {k:"controles",t:"Controles de agora",qs:["Escopo: o que entra e o que fica de fora neste primeiro ciclo?","Prioridades: o que vem primeiro?","Entregas: o que precisa estar pronto e quando?","Responsáveis: quem conduz cada frente?","Prazos: quais datas são fixas?","Como vamos acompanhar: que reunião, com que frequência e olhando quais números?"]}
+ ],parked:["Acordo de sócios","Ativos: marca, métodos, base de clientes e regras para quem sair","Forma jurídica, participação e distribuição de resultados"]}
+];
+const ALL=[];FUNDS.forEach(F=>F.cams.forEach(c=>ALL.push(c)));
+
+let codigo=null,draft={},seq=0,inflight=false,again=false,timer=null;
+let adminKey=null,resp=[],cons={};
+const $=s=>document.querySelector(s);
+const el=(tag,attrs,...kids)=>{const n=document.createElement(tag);if(attrs)for(const[k,v]of Object.entries(attrs)){if(k==="text")n.textContent=v;else if(k==="cls")n.className=v;else if(v!==null&&v!==undefined)n.setAttribute(k,v)}for(const c of kids){if(c!=null)n.append(c)}return n};
+const clone=o=>JSON.parse(JSON.stringify(o||{}));
+const get=(o,p)=>p.split(".").reduce((a,k)=>a==null?undefined:a[k],o);
+const setp=(o,p,v)=>{const ks=p.split(".");let a=o;for(let i=0;i<ks.length-1;i++){if(typeof a[ks[i]]!=="object"||a[ks[i]]===null)a[ks[i]]={};a=a[ks[i]]}a[ks[ks.length-1]]=v};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const brl=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+const num=v=>{if(v===""||v==null)return null;const n=Number(v);return isNaN(n)?null:n};
+function showBanner(t){const b=$("#banner");b.textContent=t;b.hidden=false}
+function setSave(t){$("#save-status").textContent=t}
+const configured=()=>/^https:\/\/script\.google\.com\/.+\/exec$/.test(API_URL);
+function novoCodigo(){const a=new Uint8Array(12);crypto.getRandomValues(a);return Array.from(a,b=>"abcdefghijklmnopqrstuvwxyz0123456789"[b%36]).join("")}
+
+async function api(params,body){
+ if(!configured())throw new Error("config");
+ const r=body?await fetch(API_URL,{method:"POST",body:JSON.stringify(body)}):await fetch(API_URL+"?"+new URLSearchParams(params));
+ const j=await r.json();if(!j.ok)throw new Error(j.erro||"erro");return j}
+
+/* ---------- formulário ---------- */
+function field(id,labelText,input){return el("div",{cls:"field"},el("label",{for:id,text:labelText}),input)}
+function buildForm(){
+ const host=$("#form-host");host.textContent="";
+ FUNDS.forEach(F=>{
+  const sec=el("div",{cls:"fund","data-f":F.f},el("div",{cls:"fund-head"},el("span",{cls:"num",text:F.f+" ·"}),el("h2",{text:F.nome}),el("span",{cls:"sub",text:F.sub})));
+  F.cams.forEach(c=>{
+   const box=el("div",{cls:"cam"},el("h3",{text:c.t}));
+   const ul=el("ul",{cls:"qs"});c.qs.forEach(q=>ul.append(el("li",{text:q})));box.append(ul);
+   if(c.extra==="obj"){const s=el("select",{id:"f-obj","data-k":"obj"});s.append(el("option",{value:"",text:"Escolha uma opção"}));OBJ.forEach(o=>s.append(el("option",{value:o,text:o})));box.append(field("f-obj","Meu objetivo principal com este negócio",s))}
+   if(c.extra==="risco"){const r=el("input",{type:"range",min:"1",max:"5",step:"1",id:"f-risco","data-k":"risco",value:"3"});const out=el("output",{id:"o-risco",for:"f-risco",text:"–"});r.addEventListener("input",()=>{out.textContent=r.value});box.append(field("f-risco","Meu apetite a risco (1 = muito conservador, 5 = muito arrojado)",el("div",{cls:"range"},r,out)))}
+   if(c.extra==="prio"){const g=el("div",{cls:"prio"});PRIO.forEach(([k,t])=>{const id="f-prio-"+k;g.append(el("div",{cls:"row"},el("label",{for:id,text:t}),el("input",{type:"number",min:"1",max:"10",step:"1",id,"data-k":"prio."+k,inputmode:"numeric"})))});box.append(el("div",{cls:"field"},el("span",{cls:"hint",text:"Importância de 1 a 10"}),g))}
+   if(c.extra==="aportes"){box.append(el("div",{cls:"grid2"},
+      field("f-folego","Meses que consigo trabalhar sem retirada",el("input",{type:"number",min:"0",step:"1",id:"f-folego","data-k":"n.folego",inputmode:"numeric"})),
+      field("f-aporte","Quanto posso aportar agora (R$)",el("input",{type:"number",min:"0",step:"500",id:"f-aporte","data-k":"n.aporte",inputmode:"numeric"}))))}
+   if(c.extra==="horas"){box.append(el("div",{cls:"grid2"},
+      field("f-hantes","Horas por semana até o encontro na SBCP",el("input",{type:"number",min:"0",step:"1",id:"f-hantes","data-k":"n.horasAntes",inputmode:"numeric"})),
+      field("f-hdepois","Horas por semana a partir de dezembro",el("input",{type:"number",min:"0",step:"1",id:"f-hdepois","data-k":"n.horasDepois",inputmode:"numeric"}))))}
+   const id="f-r-"+c.k;box.append(field(id,c.k==="controles"?"Minha proposta":"Minha posição",el("textarea",{id,"data-k":"r."+c.k,rows:"4",placeholder:c.k==="controles"?"Sua proposta para cada item acima.":"Escreva livremente: o que quero, o que não quero, o que me preocupa."})));
+   sec.append(box)});
+  if(F.parked){const ul=el("ul");F.parked.forEach(t=>ul.append(el("li",{text:t})));sec.append(el("div",{cls:"parked"},el("span",{cls:"eyebrow",text:"Controles futuros"}),el("p",{cls:"hint",text:"Ficam registrados para depois do consenso. Não precisam de resposta agora."}),ul))}
+  host.append(sec)});
+ document.querySelectorAll("#form-host [data-k], #f-nome").forEach(inp=>{const ev=(inp.tagName==="SELECT")?"change":"input";inp.addEventListener(ev,()=>onEdit(inp))});
+}
+function setFormEnabled(on){document.querySelectorAll("#form-host [data-k], #f-nome").forEach(i=>{i.disabled=!on})}
+function fillForm(){
+ document.querySelectorAll("#form-host [data-k], #f-nome").forEach(inp=>{const v=get(draft,inp.dataset.k);inp.value=(v===undefined||v===null)?(inp.type==="range"?"3":""):String(v)});
+ $("#o-risco").textContent=draft.risco?String(draft.risco):"–";renderDone()}
+function renderDone(){const b=$("#done-btn");b.hidden=!codigo;b.textContent=draft.status==="concluido"?"Reabrir minhas respostas":"Marcar como concluído"}
+function renderLink(){if(!codigo)return;const u=location.origin+location.pathname+"?c="+codigo;$("#meulink").value=u;$("#linkbox").hidden=false}
+function onEdit(inp){let v=inp.value;if(inp.type==="number")v=num(v);else if(inp.type==="range")v=Number(v);else if(inp.dataset.k==="nome")v=v.trim();
+ setp(draft,inp.dataset.k,v);seq++;setSave("Salvando…");clearTimeout(timer);timer=setTimeout(flush,1200)}
+async function flush(){if(inflight){again=true;return}
+ if(!draft.nome){setSave("Escreva seu nome no topo para salvar suas respostas.");return}
+ if(!codigo){codigo=novoCodigo();store.set("cs-codigo",codigo);history.replaceState(null,"","?c="+codigo+location.hash);renderLink();renderDone()}
+ inflight=true;
+ try{await api(null,{action:"salvar",codigo,dados:clone(draft)});setSave(draft.status==="concluido"?"Salvo · marcado como concluído":"Salvo")}
+ catch(e){setSave(e.message==="config"?"A página ainda não foi configurada para salvar.":"Não foi possível salvar agora. Verifique a internet; vamos tentar de novo na próxima alteração.")}
+ inflight=false;if(again){again=false;flush()}}
+$("#done-btn").addEventListener("click",()=>{draft.status=draft.status==="concluido"?"rascunho":"concluido";seq++;renderDone();clearTimeout(timer);flush()});
+$("#copy-btn").addEventListener("click",async()=>{const i=$("#meulink");try{await navigator.clipboard.writeText(i.value);$("#copy-btn").textContent="Copiado"}catch(e){i.select()}});
+
+/* ---------- visão do organizador ---------- */
+const camHosts={};
+function buildAdmin(){const p=$("#p-admin");p.textContent="";
+ if(!adminKey){const inp=el("input",{type:"password",id:"admin-key",autocomplete:"current-password"});const b=el("button",{cls:"btn",type:"button",text:"Entrar"});const msg=el("p",{cls:"hint",id:"admin-msg"});
+  const go=async()=>{const k=inp.value.trim();if(!k)return;msg.textContent="Verificando…";try{const j=await api({action:"admin",chave:k});adminKey=k;try{sessionStorage.setItem("cs-key",k)}catch(e){}applyAdmin(j);buildAdmin();renderAdmin()}catch(e){msg.textContent=e.message==="config"?"A página ainda não foi configurada.":"Chave incorreta ou serviço indisponível."}};
+  b.addEventListener("click",go);inp.addEventListener("keydown",e=>{if(e.key==="Enter")go()});
+  p.append(el("div",{cls:"cam"},el("h3",{text:"Acesso do organizador"}),field("admin-key","Chave de acesso",inp),el("div",null,b),msg));return}
+ const rb=el("button",{cls:"btn",type:"button",text:"Atualizar respostas"});rb.addEventListener("click",loadAdmin);
+ p.append(el("div",{cls:"cam"},el("span",{cls:"eyebrow",text:"Só o organizador vê esta visão"}),el("h3",{text:"Quem respondeu"}),el("div",{cls:"chips",id:"a-people"}),el("div",{cls:"savebar"},el("span",{id:"a-status",text:""}),rb)));
+ p.append(el("div",{cls:"cam"},el("h3",{text:"Comparativo rápido"}),el("div",{id:"a-cmp"})));
+ FUNDS.forEach(F=>{const sec=el("div",{cls:"fund","data-f":F.f},el("div",{cls:"fund-head"},el("span",{cls:"num",text:F.f+" ·"}),el("h2",{text:F.nome}),el("span",{cls:"sub",text:F.sub})));
+  F.cams.forEach(c=>{const cards=el("div",{cls:"cards"});const id="c-"+c.k;const ta=el("textarea",{id,rows:"3",placeholder:"O que o grupo combinou sobre este tema."});
+   ta.addEventListener("input",()=>saveCons(c.k,ta.value));
+   sec.append(el("div",{cls:"cam"},el("h3",{text:c.t}),cards,el("div",{cls:"consenso"},el("label",{for:id,text:"Consenso do grupo"}),ta)));camHosts[c.k]={cards,ta}});
+  p.append(sec)})}
+function applyAdmin(j){resp=(j.pessoas||[]).map(x=>({id:x.id,nome:(x.dados&&x.dados.nome)||"Sem nome",d:x.dados||{},done:x.dados&&x.dados.status==="concluido"})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));cons=j.consenso||{}}
+async function loadAdmin(){const s=$("#a-status");if(s)s.textContent="Atualizando…";try{applyAdmin(await api({action:"admin",chave:adminKey}));renderAdmin();if(s)s.textContent="Atualizado às "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}catch(e){if(s)s.textContent="Não foi possível atualizar."}}
+function renderAdmin(){if(!adminKey||!camHosts.velocidade)return;const ps=resp;
+ const pe=$("#a-people");pe.textContent="";
+ if(!ps.length)pe.append(el("span",{cls:"hint",text:"Ninguém respondeu ainda."}));
+ ps.forEach(p=>pe.append(el("span",{cls:"chip"+(p.done?" done":"")},el("span",{cls:"dot"}),el("span",{text:p.nome+(p.done?" · concluído":" · em andamento")}))));
+ const cmp=$("#a-cmp");cmp.textContent="";
+ if(ps.length){const t=el("table");const th=el("tr");["Participante","Objetivo principal","Apetite a risco","Peso deste negócio","Horas/sem até o encontro","Horas/sem a partir de dez","Fôlego sem retirada","Aporte possível"].forEach(x=>th.append(el("th",{text:x})));t.append(el("thead",null,th));
+  const tb=el("tbody");let sa=0,sd=0,sap=0;
+  ps.forEach(p=>{const d=p.d,n=d.n||{};const ha=num(n.horasAntes),hd=num(n.horasDepois),ap=num(n.aporte),fo=num(n.folego),pn=num(get(d,"prio.negocio"));sa+=ha||0;sd+=hd||0;sap+=ap||0;const tr=el("tr");
+   [p.nome,d.obj||"–",d.risco?d.risco+" de 5":"–",pn!=null?pn+" de 10":"–",ha!=null?ha+" h":"–",hd!=null?hd+" h":"–",fo!=null?fo+" meses":"–",ap!=null?brl(ap):"–"].forEach(x=>tr.append(el("td",{text:String(x)})));tb.append(tr)});
+  t.append(tb);const tf=el("tr");["Soma","","","",sa+" h",sd+" h","",brl(sap)].forEach(x=>tf.append(el("td",{text:x})));t.append(el("tfoot",null,tf));cmp.append(el("div",{cls:"tablewrap"},t))}
+ else cmp.append(el("p",{cls:"hint",text:"Sem respostas ainda."}));
+ ALL.forEach(c=>{const h=camHosts[c.k];h.cards.textContent="";
+  ps.forEach(p=>{const d=p.d;const card=el("div",{cls:"card"},el("div",{cls:"who"},el("span",{text:p.nome}),el("span",{cls:"tag",text:p.done?"concluído":"em andamento"})));
+   if(c.k==="prioridades"){const pr=d.prio||{};const items=PRIO.filter(([k])=>num(pr[k])!=null).sort((a,b)=>pr[b[0]]-pr[a[0]]);if(items.length){const ol=el("ol",{cls:"minirank"});items.forEach(([k,t])=>ol.append(el("li",{text:t+" · "+pr[k]})));card.append(ol)}}
+   const txt=get(d,"r."+c.k);card.append(txt&&String(txt).trim()?el("div",{cls:"txt",text:txt}):el("div",{cls:"empty",text:"Sem resposta."}));h.cards.append(card)});
+  if(document.activeElement!==h.ta)h.ta.value=(cons[c.k]&&cons[c.k].texto)||""})}
+const consTimers={};
+function saveCons(k,v){clearTimeout(consTimers[k]);consTimers[k]=setTimeout(async()=>{try{await api(null,{action:"consenso",chave:adminKey,tema:k,texto:v});cons[k]={texto:v}}catch(e){showBanner("Não foi possível salvar o consenso agora.")}},1200)}
+
+function showTab(t){document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t?"true":"false"));$("#p-responder").hidden=t!=="responder";$("#p-admin").hidden=t!=="admin"}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+
+/* ---------- início ---------- */
+buildForm();
+(async()=>{
+ if(location.hash==="#organizador"){$("#tabs").hidden=false;try{adminKey=sessionStorage.getItem("cs-key")}catch(e){}buildAdmin();showTab("admin");if(adminKey)loadAdmin()}
+ if(!configured()){setSave("Pré-visualização: a página ainda não foi ligada à planilha, então nada é salvo.");return}
+ const urlC=new URLSearchParams(location.search).get("c");
+ codigo=(urlC&&/^[a-z0-9]{10,32}$/.test(urlC))?urlC:store.get("cs-codigo");
+ if(codigo){store.set("cs-codigo",codigo);setFormEnabled(false);setSave("Carregando suas respostas…");
+  try{const j=await api({action:"carregar",codigo});if(j.dados)draft=j.dados;fillForm();renderLink();setSave(draft.nome?"Bem-vindo de volta. Suas respostas foram carregadas.":"Escreva seu nome para começar.")}
+  catch(e){setSave("Não foi possível carregar suas respostas agora. Recarregue a página.");return}
+  setFormEnabled(true)}
+ else setSave("Escreva seu nome para começar. Tudo é salvo automaticamente.");
+})();
+})();
+</script>
+</body>
+</html>
